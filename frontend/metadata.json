@@ -1,0 +1,6 @@
+{
+  "name": "SupportDesk Agent",
+  "description": "AI-powered customer support triage dashboard for reviewing tickets, running automated triage, drafting customer responses, and inspecting agent execution traces.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
