@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { AlertCircle, X } from "lucide-react";
 import { Container } from "./components/layout/Container";
 import { Header } from "./components/layout/Header";
 import { SideBar } from "./components/layout/SideBar";
-import { fetchAllTickets, fetchTicketById, resetLocalSeedStore, triageTicketViaApi } from "./lib/api";
+import { fetchAllTickets, fetchTicketById, triageTicketViaApi } from "./lib/api";
 import { Ticket, TicketStatus } from "./types/ticket";
 
 export default function App() {
@@ -21,6 +22,9 @@ export default function App() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [progressPhase, setProgressPhase] = useState<string>("");
   const [processingTicketId, setProcessingTicketId] = useState<string | null>(null);
+
+  // Toast Notification State
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Mobile Sidebar Drawer
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
@@ -88,6 +92,22 @@ export default function App() {
       setSelectedTicket(updatedResolvedTicket);
     } catch (error) {
       console.error("Triage agent execution failed:", error);
+
+      // Revert ticket to Pending status upon server failure
+      const revertedPendingTicket: Ticket = {
+        ...ticket,
+        status: "Pending",
+        result: null
+      };
+
+      setTickets(prev => prev.map(t => (t.id === ticket.id ? revertedPendingTicket : t)));
+      setSelectedTicket(revertedPendingTicket);
+
+      // Trigger toast message
+      setToastMessage("Something went wrong on the server while triaging the ticket. The ticket has been returned to Pending.");
+      setTimeout(() => {
+        setToastMessage(prev => (prev?.includes("went wrong on the server") ? null : prev));
+      }, 5000);
     } finally {
       setIsProcessing(false);
       setProcessingTicketId(null);
@@ -110,10 +130,9 @@ export default function App() {
     }
   };
 
-  // Reset entire state back to initial 3 seed tickets
-  const handleResetSeedData = () => {
-    const seed = resetLocalSeedStore();
-    setTickets(seed);
+  // Reload tickets from backend
+  const handleReloadTickets = () => {
+    loadAllTickets();
     setSelectedTicket(null);
     setSearchQuery("");
     setStatusFilter("All");
@@ -147,9 +166,24 @@ export default function App() {
           onDeselectTicket={handleDeselectTicket}
           onRunTriage={handleRunTriage}
           onResetTicketTriage={handleResetTicketTriage}
-          onResetSeedData={handleResetSeedData}
+          onResetSeedData={handleReloadTickets}
         />
       </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-rose-600 text-white text-xs font-medium rounded-lg shadow-xl border border-rose-700 animate-in fade-in slide-in-from-bottom-2 duration-200 max-w-md">
+          <AlertCircle className="w-4 h-4 shrink-0 text-white" />
+          <p className="flex-1 leading-snug">{toastMessage}</p>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="p-1 hover:bg-rose-700/60 rounded transition-colors text-white/80 hover:text-white"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

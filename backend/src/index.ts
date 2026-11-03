@@ -28,7 +28,9 @@ app.post("/api/tickets/:id/triage", async (req: Request<{ id: string }>, res: Re
 
   try {
     const result = await runTriageAgent(ticket);
-    res.json({ ...ticket, status: "Resolved", result });
+    ticket.status = "Resolved";
+    ticket.result = result;
+    res.json(ticket);
   } catch (err) {
     console.error("[triage error]", err);
     ticket.status = "Pending";

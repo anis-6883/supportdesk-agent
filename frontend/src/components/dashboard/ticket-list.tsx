@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Ticket, TicketStatus } from '../../types/ticket';
 import { TicketCard } from './ticket-card';
-import { Search, X, Filter, RotateCcw, Inbox } from 'lucide-react';
+import { Search, X, Inbox } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface TicketListProps {
@@ -12,7 +12,6 @@ interface TicketListProps {
   onSearchChange: (query: string) => void;
   statusFilter: 'All' | TicketStatus;
   onStatusFilterChange: (status: 'All' | TicketStatus) => void;
-  onResetSeedData: () => void;
 }
 
 export const TicketList: React.FC<TicketListProps> = ({
@@ -23,7 +22,6 @@ export const TicketList: React.FC<TicketListProps> = ({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
-  onResetSeedData,
 }) => {
   // Filter tickets based on search and status
   const filteredTickets = useMemo(() => {
@@ -63,16 +61,6 @@ export const TicketList: React.FC<TicketListProps> = ({
               {filteredTickets.length}
             </span>
           </div>
-
-          <button
-            type="button"
-            onClick={onResetSeedData}
-            title="Reset to initial 3 seed tickets"
-            className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 transition-colors p-1.5 rounded-md hover:bg-slate-100"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-[11px]">Reset Seed</span>
-          </button>
         </div>
 
         {/* Search Input */}
@@ -145,20 +133,24 @@ export const TicketList: React.FC<TicketListProps> = ({
             <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
               <Inbox className="w-5 h-5" />
             </div>
-            <h3 className="text-xs font-semibold text-slate-700">No tickets match criteria</h3>
+            <h3 className="text-xs font-semibold text-slate-700">No ticket available</h3>
             <p className="text-[11px] text-slate-500 mt-0.5">
-              Try adjusting your search query or status filter.
+              {tickets.length === 0
+                ? "Could not load tickets or no tickets are currently available."
+                : "Try adjusting your search query or status filter."}
             </p>
-            <button
-              type="button"
-              onClick={() => {
-                onSearchChange('');
-                onStatusFilterChange('All');
-              }}
-              className="mt-3 text-xs text-indigo-600 font-medium hover:underline"
-            >
-              Clear filters
-            </button>
+            {tickets.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSearchChange('');
+                  onStatusFilterChange('All');
+                }}
+                className="mt-3 text-xs text-indigo-600 font-medium hover:underline"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         )}
       </div>
