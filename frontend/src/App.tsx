@@ -1,14 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Ticket, TicketStatus } from './types/ticket';
-import { 
-  fetchAllTickets, 
-  fetchTicketById, 
-  triageTicketViaApi, 
-  resetLocalSeedStore 
-} from './lib/api';
-import { SideBar } from './components/layout/SideBar';
-import { Header } from './components/layout/Header';
-import { Container } from './components/layout/Container';
+import { useEffect, useState } from "react";
+import { Container } from "./components/layout/Container";
+import { Header } from "./components/layout/Header";
+import { SideBar } from "./components/layout/SideBar";
+import { fetchAllTickets, fetchTicketById, resetLocalSeedStore, triageTicketViaApi } from "./lib/api";
+import { Ticket, TicketStatus } from "./types/ticket";
 
 export default function App() {
   // Ticket list state
@@ -19,12 +14,12 @@ export default function App() {
   const [isLoadingSingleTicket, setIsLoadingSingleTicket] = useState<boolean>(false);
 
   // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<'All' | TicketStatus>('All');
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<"All" | TicketStatus>("All");
 
   // Agent Execution State
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [progressPhase, setProgressPhase] = useState<string>('');
+  const [progressPhase, setProgressPhase] = useState<string>("");
   const [processingTicketId, setProcessingTicketId] = useState<string | null>(null);
 
   // Mobile Sidebar Drawer
@@ -36,7 +31,7 @@ export default function App() {
       const res = await fetchAllTickets();
       setTickets(res.data);
     } catch (err: unknown) {
-      console.error('Failed to load tickets:', err);
+      console.error("Failed to load tickets:", err);
     }
   };
 
@@ -71,36 +66,32 @@ export default function App() {
 
     const updatedProcessingTicket: Ticket = {
       ...ticket,
-      status: 'Processing',
-      result: null,
+      status: "Processing",
+      result: null
     };
 
-    setTickets((prev) =>
-      prev.map((t) => (t.id === ticket.id ? updatedProcessingTicket : t))
-    );
+    setTickets(prev => prev.map(t => (t.id === ticket.id ? updatedProcessingTicket : t)));
     setSelectedTicket(updatedProcessingTicket);
 
     try {
-      const result = await triageTicketViaApi(ticket, (phase) => {
+      const result = await triageTicketViaApi(ticket, phase => {
         setProgressPhase(phase);
       });
 
       const updatedResolvedTicket: Ticket = {
         ...ticket,
-        status: 'Resolved',
-        result,
+        status: "Resolved",
+        result
       };
 
-      setTickets((prev) =>
-        prev.map((t) => (t.id === ticket.id ? updatedResolvedTicket : t))
-      );
+      setTickets(prev => prev.map(t => (t.id === ticket.id ? updatedResolvedTicket : t)));
       setSelectedTicket(updatedResolvedTicket);
     } catch (error) {
-      console.error('Triage agent execution failed:', error);
+      console.error("Triage agent execution failed:", error);
     } finally {
       setIsProcessing(false);
       setProcessingTicketId(null);
-      setProgressPhase('');
+      setProgressPhase("");
     }
   };
 
@@ -108,16 +99,14 @@ export default function App() {
   const handleResetTicketTriage = (ticketId: string) => {
     const resetTicket = (t: Ticket): Ticket => ({
       ...t,
-      status: 'Pending',
-      result: null,
+      status: "Pending",
+      result: null
     });
 
-    setTickets((prev) =>
-      prev.map((t) => (t.id === ticketId ? resetTicket(t) : t))
-    );
+    setTickets(prev => prev.map(t => (t.id === ticketId ? resetTicket(t) : t)));
 
     if (selectedTicket?.id === ticketId) {
-      setSelectedTicket((prev) => (prev ? resetTicket(prev) : null));
+      setSelectedTicket(prev => (prev ? resetTicket(prev) : null));
     }
   };
 
@@ -126,31 +115,21 @@ export default function App() {
     const seed = resetLocalSeedStore();
     setTickets(seed);
     setSelectedTicket(null);
-    setSearchQuery('');
-    setStatusFilter('All');
+    setSearchQuery("");
+    setStatusFilter("All");
   };
 
-  const pendingCount = tickets.filter(
-    (t) => t.status === 'Pending' || t.status === 'Processing'
-  ).length;
+  const pendingCount = tickets.filter(t => t.status === "Pending" || t.status === "Processing").length;
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden">
+    <div className='flex h-screen w-full bg-slate-50 font-sans text-slate-900 overflow-hidden'>
       {/* Left Navigation Sidebar */}
-      <SideBar
-        isOpenOnMobile={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        pendingCount={pendingCount}
-      />
+      <SideBar isOpenOnMobile={isMobileSidebarOpen} onCloseMobile={() => setIsMobileSidebarOpen(false)} pendingCount={pendingCount} />
 
       {/* Main Layout Area */}
-      <div className="flex flex-col flex-1 h-screen min-w-0 overflow-hidden">
+      <div className='flex flex-col flex-1 h-screen min-w-0 overflow-hidden'>
         {/* Header Component */}
-        <Header
-          isAgentProcessing={isProcessing}
-          onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
-          pendingCount={pendingCount}
-        />
+        <Header isAgentProcessing={isProcessing} onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)} pendingCount={pendingCount} />
 
         {/* Main Content Container Component */}
         <Container

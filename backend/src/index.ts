@@ -25,15 +25,10 @@ app.get("/api/tickets/:id", (req: Request<{ id: string }>, res: Response) => {
 app.post("/api/tickets/:id/triage", async (req: Request<{ id: string }>, res: Response) => {
   const ticket = tickets.get(req.params.id);
   if (!ticket) return void res.status(404).json({ error: "Ticket not found" });
-  if (ticket.status === "Processing") {
-    return void res.status(409).json({ error: "Already processing" });
-  }
 
-  ticket.status = "Processing";
   try {
-    ticket.result = await runTriageAgent(ticket);
-    ticket.status = "Resolved";
-    res.json(ticket);
+    const result = await runTriageAgent(ticket);
+    res.json({ ...ticket, status: "Resolved", result });
   } catch (err) {
     console.error("[triage error]", err);
     ticket.status = "Pending";
