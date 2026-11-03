@@ -27,7 +27,7 @@ export const TicketDetails: React.FC<TicketDetailsProps> = ({
   // Requirement 5: "When we click a ticket from list, then show the details otherwise show a message with border"
   if (!ticket) {
     return (
-      <div className='flex flex-col items-center justify-center h-full min-h-[460px] p-8 text-center bg-white rounded-xl border-2 border-dashed border-slate-300 shadow-2xs'>
+      <div className='flex flex-col items-center justify-center h-full min-h-115 p-8 text-center bg-white rounded-xl border-2 border-dashed border-slate-300 shadow-2xs'>
         <div className='w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 mb-4 shadow-2xs'>
           <MousePointerClick className='w-7 h-7' />
         </div>
@@ -44,7 +44,7 @@ export const TicketDetails: React.FC<TicketDetailsProps> = ({
 
   if (isLoadingTicket) {
     return (
-      <div className='flex flex-col items-center justify-center h-full min-h-[460px] p-8 text-center bg-white rounded-xl border border-slate-200 shadow-2xs'>
+      <div className='flex flex-col items-center justify-center h-full min-h-115 p-8 text-center bg-white rounded-xl border border-slate-200 shadow-2xs'>
         <Loader2 className='w-8 h-8 animate-spin text-indigo-600 mb-3' />
         <h3 className='text-sm font-bold text-slate-900'>Loading Ticket Details...</h3>
         <p className='text-xs text-slate-500 mt-1'>Fetching from /api/tickets/{ticket.id}</p>
